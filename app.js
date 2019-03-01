@@ -34,16 +34,19 @@ Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' }) //chaining F
 // this creates fk under camel cased name. => adds .userId property to Product
 User.hasMany(Product); // optional
 
-sequelize
-  .sync({
-    force: true // warning: only for dev -- this may overwrite existing table with new scheme
-  })
-  .then(result => {
-    // console.log(result);
-  })
-  .catch(err => console.error(err));
-
 const port = 3000;
-app.listen(port, () => {
-  console.log(`app listening to ${port}`);
-});
+
+(async() => {
+  const connStat = await sequelize.sync()
+  // console.log(connStat)
+  // .sync({
+  //   force: true // warning: only for dev -- this may overwrite existing table with new scheme
+  // })
+  let me = await User.findById(1)
+  if (!me) me = await User.create({ name: 'Max', email: 'test@test.com' })
+  console.log(me)
+  app.listen(port, () => {
+    console.log(`app listening to ${port}`);
+  });
+
+})()
