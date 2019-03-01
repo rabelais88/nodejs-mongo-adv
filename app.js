@@ -25,6 +25,15 @@ const shopRoutes = require('./routes/shop');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// the order of load is VERY important because this middleware has to be loaded FIRST -> next -> other middlewares
+app.use(async (req, res, next) => {
+  // when any request is given, check user
+  const me = await User.findByPk(1)
+  // console.log('user data found', me);
+  req.user = me; // IMPORTANT
+  next();
+});
+
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
@@ -33,6 +42,8 @@ app.use(errorController.get404);
 Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' }) //chaining Foreign key between two different models
 // this creates fk under camel cased name. => adds .userId property to Product
 User.hasMany(Product); // optional
+
+
 
 const port = 3000;
 
@@ -44,9 +55,10 @@ const port = 3000;
   // })
   let me = await User.findById(1)
   if (!me) me = await User.create({ name: 'Max', email: 'test@test.com' })
-  console.log(me)
+  // console.log(me)
   app.listen(port, () => {
     console.log(`app listening to ${port}`);
   });
 
 })()
+
