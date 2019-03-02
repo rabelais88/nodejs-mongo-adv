@@ -7,6 +7,8 @@ const errorController = require('./controllers/error');
 const sequelize = require('./util/database');
 const Product = require('./models/product');
 const User = require('./models/user');
+const Cart = require('./models/cart');
+const CartItem = require('./models/cart-item');
 
 const app = express();
 
@@ -40,10 +42,18 @@ app.use(shopRoutes);
 app.use(errorController.get404);
 
 Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' }) //chaining Foreign key between two different models
+
+// db associations ----------------------------
 // this creates fk under camel cased name. => adds .userId property to Product
-User.hasMany(Product); // optional
+User.hasMany(Product); // optional - add UserKey to Products - for admin
+User.hasOne(Cart); // add UserKey to Cart
 
+Cart.belongsTo(User); // add CartKey to User
+Cart.hasMany(CartItem); // add CartKey to CartItem
+Cart.belongsToMany(Product, { through: CartItem }); // adds productId to cartItem & creates methods - a single cart can hold multiple products - where this relation is stored? cartItem
+Product.belongsToMany(Cart, { through: CartItem }); // adds cartId to cartItem & creates methods- a single product can be in many carts
 
+// -------------------------------------------
 
 const port = 3000;
 
@@ -54,7 +64,9 @@ const port = 3000;
   //   force: true // warning: only for dev -- this may overwrite existing table with new scheme
   // })
   let me = await User.findById(1)
-  if (!me) me = await User.create({ name: 'Max', email: 'test@test.com' })
+  if (!me) me = await User.create({ name: 'Max', email: 'test@test.com' });
+  const carts = await Cart.findAll({ where: { userId: me.id }});
+  if (carts.length < 1) await me.createCart();
   // console.log(me)
   app.listen(port, () => {
     console.log(`app listening to ${port}`);
