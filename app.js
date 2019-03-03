@@ -9,6 +9,8 @@ const Product = require('./models/product');
 const User = require('./models/user');
 const Cart = require('./models/cart');
 const CartItem = require('./models/cart-item');
+const Order = require('./models/order');
+const OrderItem = require('./models/order-item');
 
 const app = express();
 
@@ -52,13 +54,16 @@ Cart.belongsTo(User); // add CartKey to User
 Cart.hasMany(CartItem); // add CartKey to CartItem
 Cart.belongsToMany(Product, { through: CartItem }); // adds productId to cartItem & creates methods - a single cart can hold multiple products - where this relation is stored? cartItem
 Product.belongsToMany(Cart, { through: CartItem }); // adds cartId to cartItem & creates methods- a single product can be in many carts
+Order.belongsTo(User);
+User.hasMany(Order);
+Order.belongsToMany(Product, { through: OrderItem });
 
 // -------------------------------------------
 
 const port = 3000;
 
 (async() => {
-  const connStat = await sequelize.sync()
+  const connStat = await sequelize.sync({ force: false })
   // console.log(connStat)
   // .sync({
   //   force: true // warning: only for dev -- this may overwrite existing table with new scheme
