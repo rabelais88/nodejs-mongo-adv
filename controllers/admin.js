@@ -10,11 +10,9 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = async (req, res, next) => {
   const { title, imageUrl, price, description } = req.body;
-  // http://docs.sequelizejs.com/manual/tutorial/associations.html#one-to-many-associations-hasmany-
-  await req.user.createProduct({ // magic association method because User.hasMany(product);
-    title, imageUrl, price, description
-  }); 
+  const product = await new Product({ title, price, description, imageUrl }).save();
   console.log('successfully created a product');
+  console.log(product);
   res.redirect('/admin/products');
   // Product.create({
   //   title,
