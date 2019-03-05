@@ -11,7 +11,7 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = async (req, res, next) => {
   const { title, imageUrl, price, description } = req.body;
-  const product = await new Product({ title, price, description, imageUrl }).save();
+  const product = await new Product({ title, price, description, imageUrl }, req.user._id).save();
   console.log('successfully created a product');
   console.log(product);
   res.redirect('/admin/products');
