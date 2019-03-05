@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 
 const errorController = require('./controllers/error');
 const mongoConnect = require('./util/database');
-const User = require('./models/user');
+// const User = require('./models/user-custom'); // custom user
 
 const app = express();
 
@@ -35,20 +35,11 @@ app.use(errorController.get404);
 const port = 3000;
 
 (async() => {
-  // const connStat = await sequelize.sync({ force: false })
-  // // console.log(connStat)
-  // // .sync({
-  // //   force: true // warning: only for dev -- this may overwrite existing table with new scheme
-  // // })
-  // let me = await User.findById(1)
-  // if (!me) me = await User.create({ name: 'Max', email: 'test@test.com' });
-  // const carts = await Cart.findAll({ where: { userId: me.id }});
-  // if (carts.length < 1) await me.createCart();
-  // // console.log(me)
   const client = await new mongoConnect();
-  const user = new User('kim sungryeol', 'railguns@gmail');
-  await user.save();
-  console.log('user is', await User.findByEmail('railguns@gmail'));
+  // custom user
+  // const user = new User('kim sungryeol', 'railguns@gmail');
+  // await user.save();
+  // console.log('user is', await User.findByEmail('railguns@gmail'));
   app.listen(port, () => {
     console.log(`app listening to ${port}`);
   });
