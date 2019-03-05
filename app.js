@@ -25,7 +25,7 @@ app.use(async (req, res, next) => {
   if (user) {
     req.user = new User(user.name, user.email, user.cart, user._id);
   } else {
-    await new User('sungryeol park', 'sungryeolp@gmail.com').save();
+    await new User('sungryeol park', 'sungryeolp@gmail.com', { items: [] }).save();
     let tmpUser = await User.findByEmail('sungryeolp@gmail.com')
     req.user = new User(tmpUser.name, tmpUser.email);
   }

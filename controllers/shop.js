@@ -34,11 +34,10 @@ exports.getIndex = async (req, res, next) => {
 
 exports.getCart = async (req, res, next) => {
   const cart = await req.user.getCart();
-  const cartProducts = await cart.getProducts() // thanks to Cart.belongsToMany(Product, { through: CartItem })
   res.render('shop/cart', {
     path: '/cart',
     pageTitle: 'Your Cart',
-    products: cartProducts
+    products: cart
   });
 };
 
@@ -51,10 +50,7 @@ exports.postCart = async (req, res, next) => {
 
 exports.postCartDeleteProduct = async (req, res, next) => {
   const prodId = req.body.productId;
-  const cart = await req.user.getCart();
-  const products = await cart.getProducts({ where: { id: prodId }});
-  const product = products[0];
-  await product.cartItem.destroy();
+  await req.user.deleteItemFromCart(prodId);
   res.redirect('/cart');
 };
 
