@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(async (req, res, next) => {
   const user = await User.findByEmail('sungryeolp@gmail.com');
   if (user) {
-    req.user = new User(user.name, user.email);
+    req.user = new User(user.name, user.email, user.cart, user._id);
   } else {
     await new User('sungryeol park', 'sungryeolp@gmail.com').save();
     let tmpUser = await User.findByEmail('sungryeolp@gmail.com')

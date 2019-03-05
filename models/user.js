@@ -3,7 +3,7 @@ const { ObjectId } = mongodb;
 const { getDb } = require('../util/database');
 
 module.exports = class User {
-  constructor(username, email, id) {
+  constructor(username, email, cart, id) {
     this.name = username,
     this.email = email;
     this.cart = cart;
@@ -27,8 +27,19 @@ module.exports = class User {
   }
 
   async addToCart(product) {
-    const cartProduct = this.cart.items.findIndex(cp => cp._id === product._id);
-    const updatedCart = { items: [{ ...product, quantity: 1 }] };
+    console.log(this.cart);
+    let cartProductIdx = -1;
+    if (this.cart) cartProductIdx = this.cart.items.findIndex(cp => cp._id === product._id);
+    else this.cart = { items: [] };
+    let newQuantity = 1;
+    const updatedCartItems = [...this.cart.items];
+    if (cartProductIdx >= 0) {
+      newQuantity = this.cart.items[cartProductIdx].quantity + 1;
+      updateCartItems[cartProductIdx].quantity = newQuantity;
+    } else {
+      updatedCartItems.push({ productId: new ObjectId(product._id), quantity: newQuantity });
+    }
+    const updatedCart = { items: updatedCartItems };
     getDb().collection('users').updateOne(
       { _id: new ObjectId(this._id) },
       { $set: { cart: updatedCart } }
