@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 
 const errorController = require('./controllers/error');
 const mongoConnect = require('./util/database');
+const User = require('./models/user');
 
 const app = express();
 
@@ -45,6 +46,9 @@ const port = 3000;
   // if (carts.length < 1) await me.createCart();
   // // console.log(me)
   const client = await new mongoConnect();
+  const user = new User('kim sungryeol', 'railguns@gmail');
+  await user.save();
+  console.log('user is', await User.findByEmail('railguns@gmail'));
   app.listen(port, () => {
     console.log(`app listening to ${port}`);
   });
