@@ -64,4 +64,30 @@ module.exports = class User {
         { $set: { cart: { items: updatedCartItems } } }
       );
   }
+
+  async addOrder() {
+    const products = await this.getCart();
+    const order = {
+      items: products,
+      user: {
+        _id: new ObjectId(this._id),
+        name: this.name,
+        email: this.email,
+      }
+    }
+    await getDb().collection('orders').insertOne(order);
+    this.cart = { items: [] };
+    return await getDb().collection('users')
+      .updateOne(
+        { _id: new ObjectId(this._id) },
+        { $set: { cart: { items: [] } } }
+      );
+  }
+
+  async getOrders() {
+    return await getDb()
+      .collection('orders')
+      .find({ 'user._id': new ObjectId(this._id) })
+      .toArray();
+  }
 }
