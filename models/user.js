@@ -33,7 +33,7 @@ userSchema.methods.addToCart = function(product) {
 
   if (cartProductIdx >= 0) {
     newQuantity = this.cart.items[cartProductIdx].quantity + 1;
-    updatedCartItems[cartProductIdx].quantity = new Quantity;
+    updatedCartItems[cartProductIdx].quantity = newQuantity;
   } else {
     updatedCartItems.push({
       productId: product._id,
@@ -43,11 +43,12 @@ userSchema.methods.addToCart = function(product) {
   const updatedCart = {
     items: updatedCartItems
   }
+  console.log(updatedCart.items);
   this.cart = updatedCart;
   return this.save();
 }
 
-userSchema.methods.removeFromCart = function() {
+userSchema.methods.removeFromCart = function(productId) {
   const updatedCartItems = this.cart.items.filter(item => {
     return item.productId.toString() !== productId.toString();
   });

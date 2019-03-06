@@ -42,19 +42,18 @@ exports.postEditProduct = async (req, res, next) => {
     description,
     imageUrl,
   } = req.body;
-  const updatedProduct = await new Product({
-    id: new mongodb.ObjectId(productId), // important!
-    title,
-    price,
-    imageUrl,
-    description,
-  }).save();
-  console.log('updated finished', updatedProduct);
+  const updatedProduct = await Product.findById(productId);
+  updatedProduct.title = title;
+  updatedProduct.price = price;
+  updatedProduct.description = description;
+  updatedProduct.imageUrl = imageUrl;
+  const result = await updatedProduct.save();
+  console.log('updated finished', result);
   return res.redirect('/admin/products');
 };
 
 exports.getProducts = async (req, res, next) => {
-  const products = await Product.populate('userId').find();
+  const products = await Product.find().populate('userId');
   console.log('admin items', products);
   res.render('admin/products', {
     prods: products,
@@ -65,8 +64,7 @@ exports.getProducts = async (req, res, next) => {
 
 exports.postDeleteProduct = async (req, res, next) => {
   const prodId = req.body.productId;
-  // Product.destroy({where: {id: prodId} })
-  const targetProd = await Product.deleteById(prodId);
+  const targetProd = await Product.findByIdAndRemove(prodId);
   console.log('product destroyed');
   return res.redirect('/admin/products');
 };
