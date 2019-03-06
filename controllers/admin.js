@@ -11,7 +11,7 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = async (req, res, next) => {
   const { title, imageUrl, price, description } = req.body;
-  const product = await new Product({ title, price, description, imageUrl }).save();
+  const product = await new Product({ title, price, description, imageUrl, userId: req.user }).save();
   console.log('successfully created a product');
   console.log(product);
   res.redirect('/admin/products');
@@ -54,7 +54,8 @@ exports.postEditProduct = async (req, res, next) => {
 };
 
 exports.getProducts = async (req, res, next) => {
-  const products = await Product.fetchAll();
+  const products = await Product.populate('userId').find();
+  console.log('admin items', products);
   res.render('admin/products', {
     prods: products,
     pageTitle: 'Admin Products',

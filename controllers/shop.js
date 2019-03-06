@@ -34,11 +34,11 @@ exports.getIndex = async (req, res, next) => {
 };
 
 exports.getCart = async (req, res, next) => {
-  const cart = await req.user.getCart();
+  const user = await req.user.populate('cart.items.productId').execPopulate();
   res.render('shop/cart', {
     path: '/cart',
     pageTitle: 'Your Cart',
-    products: cart
+    products: user.cart.items.map(el => el.productId),
   });
 };
 
@@ -51,7 +51,7 @@ exports.postCart = async (req, res, next) => {
 
 exports.postCartDeleteProduct = async (req, res, next) => {
   const prodId = req.body.productId;
-  await req.user.deleteItemFromCart(prodId);
+  await req.user.removeFromCart(prodId);
   res.redirect('/cart');
 };
 

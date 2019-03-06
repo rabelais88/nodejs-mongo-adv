@@ -1,4 +1,4 @@
 module.exports = {
-  user: 'dev',
+  dbid: 'dev',
   pw: ''
 }
