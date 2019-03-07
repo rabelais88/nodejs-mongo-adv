@@ -7,6 +7,7 @@ if (!dbid) throw 'db id is missing...check settings.js';
 if (!pw) throw 'pw for db is missing...check settings.js';
 
 const mongoose = require('mongoose');
+const session = require('express-session');
 
 const errorController = require('./controllers/error');
 // const mongoConnect = require('./util/database');
@@ -19,9 +20,18 @@ app.set('views', 'views');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
+const cookieParser = require('cookie-parser');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+  secret: 'my secret',
+  resave: false, // session will not be saved everytime
+  saveUninitialized: false,
+}));
+app.use(cookieParser());
+
 
 // the order of load is VERY important because this middleware has to be loaded FIRST -> next -> other middlewares
 app.use(async (req, res, next) => {
@@ -43,6 +53,7 @@ app.use(async (req, res, next) => {
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
 app.use(errorController.get404);
 
