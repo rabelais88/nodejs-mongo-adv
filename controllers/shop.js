@@ -1,8 +1,8 @@
 const Product = require('../models/product');
+const Order = require('../models/order');
 
 exports.getProducts = async (req, res, next) => {
   const products = await Product.find();
-  console.log(products);
   res.render('shop/product-list', {
     prods: products,
     pageTitle: 'All products',
@@ -59,7 +59,6 @@ exports.postCartDeleteProduct = async (req, res, next) => {
 
 exports.getOrders = async (req, res, next) => {
   const orders = await req.user.getOrders();
-  console.log(orders);
   res.render('shop/orders', {
     path: '/orders',
     pageTitle: 'Your Orders',
@@ -75,6 +74,18 @@ exports.getCheckout = (req, res, next) => {
 };
 
 exports.postOrder = async (req, res, next) => {
-  await req.user.addOrder()
+  let products = await req.user.populate('cart.items.productId').execPopulate();
+  products = products.cart.items.map(i => ({
+    quantity: i.quantity,
+    product: { ...i.productId._doc },
+  }))
+  const order = new Order({
+    user: {
+      name: req.user.name,
+      userId: req.user,
+    },
+    products
+  });
+  await order.save();
   res.redirect('/orders');
 };
