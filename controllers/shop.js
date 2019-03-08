@@ -7,7 +7,7 @@ exports.getProducts = async (req, res, next) => {
     prods: products,
     pageTitle: 'All products',
     path: '/products',
-    isAuthenticated: req.isLoggedIn,
+    isAuthenticated: Boolean(req.session.isLoggedIn)
   });
   return ;
 };
@@ -19,7 +19,7 @@ exports.getProduct = async (req, res, next) => {
     product: product,
     pageTitle: product.title,
     path: '/products',
-    isAuthenticated: req.isLoggedIn,
+    isAuthenticated: Boolean(req.session.isLoggedIn)
   });
   return true;
 };
@@ -30,13 +30,13 @@ exports.getIndex = async (req, res, next) => {
     prods: products,
     pageTitle: 'Shop',
     path: '/',
-    isAuthenticated: req.isLoggedIn,
+    isAuthenticated: Boolean(req.session.isLoggedIn)
   });
   return true;
 };
 
 exports.getCart = async (req, res, next) => {
-  const user = await req.user.populate('cart.items.productId').execPopulate();
+  const user = await req.session.user.populate('cart.items.productId').execPopulate();
   res.render('shop/cart', {
     path: '/cart',
     pageTitle: 'Your Cart',
@@ -44,30 +44,30 @@ exports.getCart = async (req, res, next) => {
       el.productId.quantity = el.quantity;
       return el.productId;
     }),
-    isAuthenticated: req.isLoggedIn,
+    isAuthenticated: Boolean(req.session.isLoggedIn)
   });
 };
 
 exports.postCart = async (req, res, next) => {
   const prodId = req.body.productId;
   const product = await Product.findById(prodId);
-  await req.user.addToCart(product);
+  await req.session.user.addToCart(product);
   res.redirect('/cart');
 };
 
 exports.postCartDeleteProduct = async (req, res, next) => {
   const prodId = req.body.productId;
-  await req.user.removeFromCart(prodId);
+  await req.session.user.removeFromCart(prodId);
   res.redirect('/cart');
 };
 
 exports.getOrders = async (req, res, next) => {
-  const orders = await req.user.getOrders();
+  const orders = await req.session.user.getOrders();
   res.render('shop/orders', {
     path: '/orders',
     pageTitle: 'Your Orders',
     orders,
-    isAuthenticated: req.isLoggedIn,
+    isAuthenticated: Boolean(req.session.isLoggedIn)
   });
 };
 
@@ -75,20 +75,20 @@ exports.getCheckout = (req, res, next) => {
   res.render('shop/checkout', {
     path: '/checkout',
     pageTitle: 'Checkout',
-    isAuthenticated: req.isLoggedIn,
+    isAuthenticated: Boolean(req.session.isLoggedIn)
   });
 };
 
 exports.postOrder = async (req, res, next) => {
-  let products = await req.user.populate('cart.items.productId').execPopulate();
+  let products = await req.session.user.populate('cart.items.productId').execPopulate();
   products = products.cart.items.map(i => ({
     quantity: i.quantity,
     product: { ...i.productId._doc },
   }))
   const order = new Order({
     user: {
-      name: req.user.name,
-      userId: req.user,
+      name: req.session.user.name,
+      userId: req.session.user,
     },
     products
   });

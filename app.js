@@ -8,6 +8,12 @@ if (!pw) throw 'pw for db is missing...check settings.js';
 
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
+
+const store = new MongoDBStore({
+  uri: `mongodb+srv://${dbid}:${pw}@cluster0-xuqfn.mongodb.net/shop`,
+  collection: 'sessions'
+});
 
 const errorController = require('./controllers/error');
 // const mongoConnect = require('./util/database');
@@ -21,7 +27,7 @@ app.set('views', 'views');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser'); // not necessary if session is used
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -29,9 +35,9 @@ app.use(session({
   secret: 'my secret',
   resave: false, // session will not be saved everytime
   saveUninitialized: false,
+  store: store,
 }));
-app.use(cookieParser());
-
+// app.use(cookieParser());
 
 // the order of load is VERY important because this middleware has to be loaded FIRST -> next -> other middlewares
 app.use(async (req, res, next) => {
