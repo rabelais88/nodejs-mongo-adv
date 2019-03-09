@@ -58,6 +58,7 @@ exports.postCartDeleteProduct = async (req, res, next) => {
 };
 
 exports.getOrders = async (req, res, next) => {
+  Order.find({ 'user.userId': req.user._id });
   const orders = await req.user.getOrders();
   res.render('shop/orders', {
     path: '/orders',
@@ -87,5 +88,6 @@ exports.postOrder = async (req, res, next) => {
     products
   });
   await order.save();
+  await req.user.clearCart();
   res.redirect('/orders');
 };
