@@ -6,7 +6,8 @@ exports.getProducts = async (req, res, next) => {
   res.render('shop/product-list', {
     prods: products,
     pageTitle: 'All products',
-    path: '/products'
+    path: '/products',
+    isAuthenticated: Boolean(req.session.isLoggedIn)
   });
   return ;
 };
@@ -17,7 +18,8 @@ exports.getProduct = async (req, res, next) => {
   res.render('shop/product-detail', {
     product: product,
     pageTitle: product.title,
-    path: '/products'
+    path: '/products',
+    isAuthenticated: Boolean(req.session.isLoggedIn)
   });
   return true;
 };
@@ -27,7 +29,8 @@ exports.getIndex = async (req, res, next) => {
   res.render('shop/index', {
     prods: products,
     pageTitle: 'Shop',
-    path: '/'
+    path: '/',
+    isAuthenticated: Boolean(req.session.isLoggedIn)
   });
   return true;
 };
@@ -41,6 +44,7 @@ exports.getCart = async (req, res, next) => {
       el.productId.quantity = el.quantity;
       return el.productId;
     }),
+    isAuthenticated: Boolean(req.session.isLoggedIn)
   });
 };
 
@@ -63,14 +67,16 @@ exports.getOrders = async (req, res, next) => {
   res.render('shop/orders', {
     path: '/orders',
     pageTitle: 'Your Orders',
-    orders
+    orders,
+    isAuthenticated: Boolean(req.session.isLoggedIn)
   });
 };
 
 exports.getCheckout = (req, res, next) => {
   res.render('shop/checkout', {
     path: '/checkout',
-    pageTitle: 'Checkout'
+    pageTitle: 'Checkout',
+    isAuthenticated: Boolean(req.session.isLoggedIn)
   });
 };
 
@@ -82,8 +88,8 @@ exports.postOrder = async (req, res, next) => {
   }))
   const order = new Order({
     user: {
-      name: req.user.name,
-      userId: req.user,
+      name: req.session.user.name,
+      userId: req.session.user,
     },
     products
   });
