@@ -37,6 +37,14 @@ app.use(session({
   saveUninitialized: false,
   store: store,
 }));
+app.use(async (req, res, next) => {
+  if (req.session.isLoggedIn) {
+    const user = await User.findOne({ email: req.session.user.email });
+    // supposed to find for user by email / user data in session
+    req.user = user;
+  }
+  next();
+});
 // app.use(cookieParser());
 
 // the order of load is VERY important because this middleware has to be loaded FIRST -> next -> other middlewares

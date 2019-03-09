@@ -36,7 +36,7 @@ exports.getIndex = async (req, res, next) => {
 };
 
 exports.getCart = async (req, res, next) => {
-  const user = await req.session.user.populate('cart.items.productId').execPopulate();
+  const user = await req.user.populate('cart.items.productId').execPopulate();
   res.render('shop/cart', {
     path: '/cart',
     pageTitle: 'Your Cart',
@@ -51,18 +51,18 @@ exports.getCart = async (req, res, next) => {
 exports.postCart = async (req, res, next) => {
   const prodId = req.body.productId;
   const product = await Product.findById(prodId);
-  await req.session.user.addToCart(product);
+  await req.user.addToCart(product);
   res.redirect('/cart');
 };
 
 exports.postCartDeleteProduct = async (req, res, next) => {
   const prodId = req.body.productId;
-  await req.session.user.removeFromCart(prodId);
+  await req.user.removeFromCart(prodId);
   res.redirect('/cart');
 };
 
 exports.getOrders = async (req, res, next) => {
-  const orders = await req.session.user.getOrders();
+  const orders = await req.user.getOrders();
   res.render('shop/orders', {
     path: '/orders',
     pageTitle: 'Your Orders',
@@ -80,7 +80,7 @@ exports.getCheckout = (req, res, next) => {
 };
 
 exports.postOrder = async (req, res, next) => {
-  let products = await req.session.user.populate('cart.items.productId').execPopulate();
+  let products = await req.user.populate('cart.items.productId').execPopulate();
   products = products.cart.items.map(i => ({
     quantity: i.quantity,
     product: { ...i.productId._doc },
